@@ -1,18 +1,19 @@
 """
 main.py - The starting point of our Seat Booking API.
 
-Endpoints so far:
-  GET    /health                                -> is the API, PostgreSQL and Redis working?
+Endpoints:
+  GET    /health
   POST   /auth/signup, POST /auth/login, GET /auth/me
   GET    /shows, GET /shows/{id}/seats
   POST   /shows/{id}/seats/{seat_id}/hold, DELETE /shows/{id}/seats/{seat_id}/hold
+  POST   /bookings, GET /bookings/me
 """
 
 from fastapi import FastAPI, Response, status
 
 from app.database import check_database
 from app.redis_client import check_redis
-from app.routers import auth, shows
+from app.routers import auth, bookings, shows
 
 # Create the FastAPI application.
 # Think of `app` as the restaurant itself: every endpoint we add
@@ -27,6 +28,7 @@ app = FastAPI(
 # Plug in the groups of endpoints.
 app.include_router(auth.router)
 app.include_router(shows.router)
+app.include_router(bookings.router)
 
 
 @app.get("/health")

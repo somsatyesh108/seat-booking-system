@@ -1,25 +1,18 @@
 """
-schemas.py - The shapes of data going IN to and OUT of our API.
-
-These are Pydantic models (not database tables). FastAPI uses them to:
-  - reject bad input automatically (wrong email, short password)
-  - control exactly what we send back (never the password hash!)
+schemas.py - The shapes of data going IN to and OUT of our API (Pydantic models).
+They reject bad input automatically and control what we send back (never password hashes).
 """
 
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 # ---------------- Users and login ----------------
 
 class UserCreate(BaseModel):
-    """
-    What a person sends to sign up.
-
-    Example: {"email": "som@example.com", "full_name": "Som", "password": "som@1234"}
-    """
+    """Signup input. Example: {"email": "som@example.com", "full_name": "Som", "password": "som@1234"}"""
 
     email: EmailStr
     full_name: str = Field(min_length=1, max_length=100)
@@ -27,14 +20,8 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
-    """
-    What the API sends back about a user. Notice: NO password, NO hash.
+    """What we send back about a user. NO password, NO hash."""
 
-    Example: {"id": 1, "email": "som@example.com", "full_name": "Som",
-              "created_at": "2026-11-16T18:20:00Z"}
-    """
-
-    # Allow building this from a database User object (user.id, user.email, ...).
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -44,11 +31,7 @@ class UserOut(BaseModel):
 
 
 class Token(BaseModel):
-    """
-    What the API sends back after a successful login.
-
-    Example: {"access_token": "eyJhbGciOiJIUzI1NiIs...", "token_type": "bearer"}
-    """
+    """Login result. Example: {"access_token": "eyJ...", "token_type": "bearer"}"""
 
     access_token: str
     token_type: str = "bearer"
@@ -57,12 +40,7 @@ class Token(BaseModel):
 # ---------------- Shows, seats and holds ----------------
 
 class ShowOut(BaseModel):
-    """
-    One show in a list.
-
-    Example: {"id": 1, "title": "The Last Monsoon", "category": "movie",
-              "venue": "Forum Mall Screen 3, Bengaluru", "starts_at": "2026-12-05T13:30:00Z"}
-    """
+    """One show. Example: {"id": 1, "title": "The Last Monsoon", "category": "movie", ...}"""
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -74,12 +52,7 @@ class ShowOut(BaseModel):
 
 
 class SeatOut(BaseModel):
-    """
-    One seat on a seat map, with its live status.
-
-    Example: {"id": 7, "label": "A7", "row_label": "A", "seat_number": 7,
-              "price_paise": 15000, "status": "held"}
-    """
+    """One seat on a seat map. Example: {"id": 7, "label": "A7", "status": "held", ...}"""
 
     id: int
     label: str
@@ -97,15 +70,46 @@ class SeatMapOut(BaseModel):
 
 
 class HoldOut(BaseModel):
-    """
-    The result of holding a seat.
-
-    Example: {"show_id": 1, "seat_id": 7, "seat_label": "A7",
-              "held_by_user_id": 31, "expires_in_seconds": 300}
-    """
+    """Result of holding a seat. Example: {"seat_label": "A7", "expires_in_seconds": 300, ...}"""
 
     show_id: int
     seat_id: int
     seat_label: str
     held_by_user_id: int
     expires_in_seconds: int
+
+
+# ---------------- Bookings ----------------
+
+class BookingCreate(BaseModel):
+    """Book the seats you hold (1 to 10, all-or-nothing). Example: {"show_id": 1, "seat_ids": [1, 2]}"""
+
+    show_id: int
+    seat_ids: list[int] = Field(min_length=1, max_length=10)
+
+    @field_validator("seat_ids")
+    @classmethod
+    def no_duplicate_seats(cls, seat_ids: list[int]) -> list[int]:
+        if len(set(seat_ids)) != len(seat_ids):
+            raise ValueError("seat_ids must not contain the same seat twice")
+        return seat_ids
+
+
+class BookingOut(BaseModel):
+    """One booked seat. Example: {"show_title": "The Last Monsoon", "seat_label": "A1", ...}"""
+
+    id: int
+    show_id: int
+    show_title: str
+    seat_id: int
+    seat_label: str
+    amount_paise: int
+    created_at: datetime
+
+
+class BookingConfirmation(BaseModel):
+    """Result of a successful booking: every seat booked, plus the total price."""
+
+    show_id: int
+    bookings: list[BookingOut]
+    total_paise: int
