@@ -1,7 +1,10 @@
 """
-routers/auth.py - Signup and login (and "who am I", coming next).
+routers/auth.py - Signup, login and "who am I".
 
-All endpoints here start with /auth, e.g. POST /auth/signup, POST /auth/login
+All endpoints here start with /auth:
+  POST /auth/signup  -> create an account
+  POST /auth/login   -> get a JWT access token
+  GET  /auth/me      -> details of the logged-in user (requires a token)
 """
 
 from typing import Annotated
@@ -13,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies import CurrentUser
 from app.models import User
 from app.schemas import Token, UserCreate, UserOut
 from app.security import create_access_token, hash_password, verify_password
@@ -100,3 +104,15 @@ def login(
         raise _invalid_credentials()
 
     return Token(access_token=create_access_token(user.id))
+
+
+@router.get("/me", response_model=UserOut)
+def read_me(current_user: CurrentUser) -> User:
+    """
+    Return the logged-in user's own details.
+
+    Example: Arjun sends "Authorization: Bearer <his token>"
+    -> 200 {"id": 31, "email": "arjun@example.com", "full_name": "Arjun", ...}
+    No token, or a bad/expired token -> 401.
+    """
+    return current_user
