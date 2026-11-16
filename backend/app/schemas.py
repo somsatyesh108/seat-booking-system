@@ -38,3 +38,14 @@ class UserOut(BaseModel):
     email: EmailStr
     full_name: str
     created_at: datetime
+
+
+class Token(BaseModel):
+    """
+    What the API sends back after a successful login.
+
+    Example: {"access_token": "eyJhbGciOiJIUzI1NiIs...", "token_type": "bearer"}
+    """
+
+    access_token: str
+    token_type: str = "bearer"
