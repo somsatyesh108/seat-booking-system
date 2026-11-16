@@ -1,5 +1,5 @@
 """
-config.py - Loads settings (database passwords, ports, etc.) from the .env file.
+config.py - Loads settings (database passwords, ports, secret keys) from the .env file.
 
 Why: secrets like passwords must NEVER be written directly in code,
 because code goes to GitHub. The .env file stays on your Mac only.
@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote_plus
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Find the project root, where the .env file lives.
@@ -33,6 +34,13 @@ class Settings(BaseSettings):
     # ---- Redis ----
     redis_host: str = "localhost"
     redis_port: int = 6379
+
+    # ---- Login tokens (JWT) ----
+    # The secret used to sign tokens. Required, and must be long (at least 32 characters).
+    # repr=False: never show it when settings are printed or logged.
+    jwt_secret_key: str = Field(min_length=32, repr=False)
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60  # a login lasts 1 hour
 
     # ---- Business rules ----
     seat_hold_seconds: int = 300  # 5-minute seat hold
