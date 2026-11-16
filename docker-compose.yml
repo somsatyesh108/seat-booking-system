@@ -1,0 +1,40 @@
+# docker-compose.yml
+# Starts the two services our backend needs:
+#   1. PostgreSQL - permanent storage (users, shows, seats, bookings)
+#   2. Redis      - temporary 5-minute seat holds (auto-expire)
+
+services:
+  postgres:
+    image: postgres:17-alpine          # Official PostgreSQL 17, small "alpine" Linux base
+    container_name: seatbooking-postgres
+    environment:                       # Values come from the .env file
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"                    # Mac port 5432 -> container port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Keep data even if the container is removed
+    healthcheck:                       # Docker checks every 5s: "is Postgres ready?"
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7.4-alpine            # Official Redis 7.4, small alpine base
+    container_name: seatbooking-redis
+    command: ["redis-server", "--appendonly", "yes"]   # Save data to disk too
+    ports:
+      - "6379:6379"                    # Mac port 6379 -> container port 6379
+    volumes:
+      - redis_data:/data
+    healthcheck:                       # Docker checks every 5s: "does Redis answer PONG?"
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:                               # Named storage areas managed by Docker
+  postgres_data:
+  redis_data:

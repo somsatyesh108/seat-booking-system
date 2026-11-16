@@ -1,0 +1,20 @@
+# ---- Secrets (never commit) ----
+.env
+
+# ---- Python ----
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Node / React ----
+node_modules/
+dist/
+build/
+
+# ---- Editors and macOS ----
+.DS_Store
+.vscode/
+*.log
