@@ -10,19 +10,29 @@ Endpoints:
 """
 
 from fastapi import FastAPI, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import check_database
 from app.redis_client import check_redis
 from app.routers import auth, bookings, shows
 
 # Create the FastAPI application.
-# Think of `app` as the restaurant itself: every endpoint we add
-# is a new item on its menu.
 app = FastAPI(
     title="Seat Booking API",
     description="Concurrent seat booking system with Redis seat holds "
     "and PostgreSQL row locking to prevent double-booking.",
     version="0.1.0",
+)
+
+# CORS: browsers only let a web page read our API's replies if we trust the page's address.
+# We trust ONLY our React app during development (Vite runs it on port 5173).
+FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=FRONTEND_ORIGINS,
+    allow_credentials=False,  # we send the JWT in a header, not in cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Plug in the groups of endpoints.
