@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
+import HomePage from "./pages/HomePage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import SeatMapPage from "./pages/SeatMapPage";
 import ShowsPage from "./pages/ShowsPage";
@@ -82,7 +83,7 @@ export default function App() {
       <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
 
       <Route element={<Layout />}>
-        <Route index element={<OldShowsPage />} />
+        <Route index element={<HomePage />} />
         <Route path="movies" element={<OldShowsPage />} />
         <Route path="events" element={<OldShowsPage />} />
         <Route path="buses" element={<OldShowsPage />} />

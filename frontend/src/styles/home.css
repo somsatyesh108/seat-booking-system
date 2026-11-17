@@ -1,0 +1,246 @@
+/* home.css - The home page: hero slides, category shortcuts and the "how it works" band. */
+
+.home-top {
+  padding-top: 24px;
+}
+
+/* ---------- Hero slides ---------- */
+.hero {
+  position: relative;
+  height: clamp(360px, 46vw, 480px);
+  overflow: hidden;
+  border-radius: var(--radius-l);
+  background: #000;
+}
+
+.hero-track {
+  height: 100%;
+  display: flex;
+  transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.hero-slide {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hero-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 60%, transparent);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: clamp(28px, 5vw, 56px);
+  color: #fff;
+}
+
+.hero-kicker {
+  padding: 4px 12px;
+  border-radius: var(--pill);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.hero-content h2 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.hero-content p {
+  max-width: 46ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1.05rem;
+}
+
+.hero-content .hero-meta {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.btn-light {
+  background: #fff;
+  color: var(--text);
+}
+
+.btn-light:hover:not(:disabled) {
+  background: #f5f5f7;
+}
+
+.hero .hero-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 1.6rem;
+  transform: translateY(-50%);
+}
+
+.hero .hero-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.hero .hero-arrow.prev {
+  left: 16px;
+}
+
+.hero .hero-arrow.next {
+  right: 16px;
+}
+
+.hero-dots {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.hero .hero-dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transition: width 0.3s;
+}
+
+.hero .hero-dots button[aria-current="true"] {
+  width: 24px;
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* ---------- Category shortcuts ---------- */
+.quick-cats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.quick-cat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: var(--radius-m);
+  background: var(--bg-alt);
+  color: var(--text);
+}
+
+.quick-cat:hover {
+  background: #ebebf0;
+  text-decoration: none;
+}
+
+.quick-cat-icon {
+  font-size: 1.8rem;
+}
+
+.quick-cat strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.quick-cat span {
+  color: var(--text-2);
+  font-size: 0.88rem;
+}
+
+/* ---------- "How it works" band ---------- */
+.promo {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 40px;
+  margin-top: 72px;
+  padding: clamp(32px, 5vw, 64px);
+  border-radius: var(--radius-l);
+  background: #000;
+  color: #f5f5f7;
+}
+
+.promo h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.promo p {
+  color: #a1a1a6;
+}
+
+.promo-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.promo-steps li {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: start;
+  gap: 14px;
+}
+
+.promo-steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+.promo-steps strong {
+  display: block;
+  color: #fff;
+}
+
+.promo-steps span {
+  color: #a1a1a6;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 760px) {
+  .quick-cats,
+  .promo {
+    grid-template-columns: 1fr;
+  }
+  .hero .hero-arrow {
+    display: none;
+  }
+}

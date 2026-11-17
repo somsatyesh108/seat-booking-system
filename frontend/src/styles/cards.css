@@ -1,0 +1,156 @@
+/* cards.css - Posters, title cards and sideways-scrolling rows (used on many pages). */
+
+/* ---------- Poster: a gradient "image" with the title on it ---------- */
+.poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.45));
+  pointer-events: none;
+}
+
+.poster > * {
+  position: relative;
+  z-index: 1;
+}
+
+.poster-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.poster-icon {
+  font-size: 1.4rem;
+}
+
+.poster-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.poster-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Title card: poster + name + short details ---------- */
+.title-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text);
+}
+
+.title-card:hover {
+  text-decoration: none;
+}
+
+.title-card h3 {
+  margin-top: 6px;
+  font-size: 1rem;
+}
+
+.title-card p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.85rem;
+}
+
+.title-card .price {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.filling-fast {
+  color: #c25e00;
+  font-weight: 500;
+}
+
+/* ---------- Row: heading + sideways scroller ---------- */
+.row {
+  margin-top: 56px;
+}
+
+.row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.row-head h2 {
+  font-size: 1.6rem;
+}
+
+.row-head a {
+  font-size: 0.95rem;
+}
+
+.row-arrows {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.row .row-arrows button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bg-alt);
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+.row .row-arrows button:hover:not(:disabled) {
+  background: #e8e8ed;
+}
+
+.row-scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 200px;
+  gap: 20px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.row-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.row-scroller > * {
+  scroll-snap-align: start;
+}
+
+@media (max-width: 720px) {
+  .row-scroller {
+    grid-auto-columns: 150px;
+  }
+  .row-arrows {
+    display: none;
+  }
+}
