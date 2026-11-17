@@ -1,0 +1,218 @@
+/* tickets.css - My tickets (upcoming / past) and the Profile page. */
+
+.tickets,
+.profile {
+  padding-top: 40px;
+}
+
+.tickets > h1 {
+  margin-bottom: 20px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* ---------- Upcoming / Past switch ---------- */
+.ticket-tabs {
+  display: inline-flex;
+  margin-bottom: 28px;
+  padding: 4px;
+  border-radius: var(--pill);
+  background: var(--bg-alt);
+}
+
+.ticket-tabs button {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: var(--pill);
+  background: none;
+  color: var(--text-2);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.ticket-tabs button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Ticket rows ---------- */
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticket-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 280px;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+.ticket-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 8px;
+  background: var(--text);
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.ticket-date strong {
+  font-size: 2.2rem;
+  line-height: 1.05;
+}
+
+.ticket-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 20px 24px;
+}
+
+.ticket-row-kind {
+  color: var(--blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ticket-title {
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.ticket-info p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.92rem;
+}
+
+.ticket-side {
+  padding: 20px 24px;
+  border-left: 2px dashed var(--line);
+  background: var(--bg-alt);
+}
+
+.ticket-side dl {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.ticket-side dt {
+  color: var(--text-3);
+  font-size: 0.75rem;
+}
+
+.ticket-side dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.tickets-empty {
+  padding: 64px 24px;
+  border-radius: var(--radius-m);
+  background: var(--bg-alt);
+  text-align: center;
+}
+
+.tickets-empty h2 {
+  margin-bottom: 8px;
+}
+
+.tickets-empty p {
+  margin: 0 0 20px;
+  color: var(--text-2);
+}
+
+/* ---------- Profile ---------- */
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px;
+  border-radius: var(--radius-l);
+  background: var(--bg-alt);
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--text);
+  color: #fff;
+  font-size: 2.6rem;
+  font-weight: 600;
+}
+
+.profile-card h1 {
+  font-size: 2rem;
+}
+
+.profile-card p {
+  margin: 4px 0 0;
+  color: var(--text-2);
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0 0;
+}
+
+.profile-stats div {
+  padding: 22px 24px;
+  border: 1px solid var(--bg-alt);
+  border-radius: var(--radius-m);
+}
+
+.profile-stats dt {
+  color: var(--text-2);
+  font-size: 0.88rem;
+}
+
+.profile-stats dd {
+  margin: 6px 0 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (max-width: 760px) {
+  .ticket-row {
+    grid-template-columns: 80px 1fr;
+  }
+  .ticket-side {
+    grid-column: 1 / -1;
+    border-top: 2px dashed var(--line);
+    border-left: 0;
+  }
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .profile-stats {
+    grid-template-columns: 1fr;
+  }
+}
