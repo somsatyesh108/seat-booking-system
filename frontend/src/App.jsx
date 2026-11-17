@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ConfirmationPage from "./pages/ConfirmationPage";
 import HomePage from "./pages/HomePage";
 import ListingPage from "./pages/ListingPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
@@ -70,6 +72,14 @@ export default function App() {
         <Route
           path="shows/:showId/seats"
           element={<RequireAuth><SeatSelectionPage /></RequireAuth>}
+        />
+        <Route
+          path="checkout/:showId"
+          element={<RequireAuth><CheckoutPage /></RequireAuth>}
+        />
+        <Route
+          path="booking/confirmed"
+          element={<RequireAuth><ConfirmationPage /></RequireAuth>}
         />
         <Route
           path="tickets"
