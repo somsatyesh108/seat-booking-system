@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, clearToken, getToken } from "./api";
 import AuthPage from "./pages/AuthPage";
+import SeatMapPage from "./pages/SeatMapPage";
 import ShowsPage from "./pages/ShowsPage";
 import "./App.css";
 
@@ -41,11 +42,11 @@ export default function App() {
 
       <main className="content">
         {selectedShow ? (
-          <div className="card">
-            <button onClick={() => setSelectedShow(null)}>← Back to shows</button>
-            <h2>{selectedShow.title}</h2>
-            <p className="muted">The clickable seat map comes in the next step.</p>
-          </div>
+          <SeatMapPage
+            key={selectedShow.id}
+            show={selectedShow}
+            onBack={() => setSelectedShow(null)}
+          />
         ) : (
           <ShowsPage onSelectShow={setSelectedShow} />
         )}
