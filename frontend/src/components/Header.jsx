@@ -1,7 +1,7 @@
 // Header.jsx - Frosted top bar: logo, search, city, account menu, and category links.
 
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
 
 const CATEGORIES = [
@@ -35,7 +35,19 @@ function PinIcon() {
 export default function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+  const location = useLocation();
+  const [params] = useSearchParams();
+
+  // The search box shows the search from the address bar on /search, and is empty elsewhere.
+  const urlQuery = location.pathname === "/search" ? params.get("q") || "" : "";
+  const [query, setQuery] = useState(urlQuery);
+  const [lastUrlQuery, setLastUrlQuery] = useState(urlQuery);
+  if (urlQuery !== lastUrlQuery) {
+    // The address changed (e.g. we left the search page): update the box to match.
+    setLastUrlQuery(urlQuery);
+    setQuery(urlQuery);
+  }
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 

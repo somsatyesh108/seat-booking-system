@@ -152,3 +152,6 @@
     position: static;
   }
 }
+.filters .btn-secondary {
+  background: #fff;
+}
