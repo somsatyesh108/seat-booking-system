@@ -128,14 +128,21 @@ export function subtitleOf(item) {
   return item.genre;
 }
 
-// Each title gets its own poster colours, worked out from its name (same name = same colours).
+// Poster / banner background for a title.
+// Layer 1 (top): an image at public/posters/<slug>.jpg, if that file exists.
+// Layer 2 (bottom): a gradient worked out from the title's name (same name = same colours),
+// which shows whenever the image is missing.
 export function posterStyle(item) {
   let hue = 0;
   for (const character of item.title) {
     hue = (hue * 31 + character.charCodeAt(0)) % 360;
   }
+  const gradient = `linear-gradient(160deg, hsl(${hue} 70% 55%) 0%, hsl(${(hue + 35) % 360} 70% 30%) 55%, hsl(${(hue + 60) % 360} 60% 12%) 100%)`;
+  const slug = item.slug || slugify(item.title);
   return {
-    background: `linear-gradient(160deg, hsl(${hue} 70% 55%) 0%, hsl(${(hue + 35) % 360} 70% 30%) 55%, hsl(${(hue + 60) % 360} 60% 12%) 100%)`,
+    backgroundImage: `url("/posters/${slug}.jpg"), ${gradient}`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
   };
 }
 

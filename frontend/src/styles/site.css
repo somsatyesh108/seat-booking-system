@@ -454,3 +454,12 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Logo colours: black tile + white "b" on light pages; white tile + black "b" on dark panels. */
+.logo {
+  --logo-contrast: #fff;
+}
+
+.auth-hero .logo {
+  --logo-contrast: #000;
+}

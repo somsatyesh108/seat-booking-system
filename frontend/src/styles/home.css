@@ -43,6 +43,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: clamp(28px, 5vw, 56px);
+  padding-bottom: clamp(56px, 6vw, 72px); /* room for the controls at the bottom */
   color: #fff;
 }
 
@@ -82,20 +83,21 @@
   background: #f5f5f7;
 }
 
+/* Controls live along the bottom, so they never cover the title */
 .hero .hero-arrow {
   position: absolute;
-  top: 50%;
+  bottom: 16px;
   z-index: 2;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   color: #fff;
-  font-size: 1.6rem;
-  transform: translateY(-50%);
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .hero .hero-arrow:hover:not(:disabled) {
@@ -103,20 +105,21 @@
 }
 
 .hero .hero-arrow.prev {
-  left: 16px;
+  right: 66px;
 }
 
 .hero .hero-arrow.next {
-  right: 16px;
+  right: 20px;
 }
 
 .hero-dots {
   position: absolute;
-  right: 24px;
-  bottom: 18px;
+  bottom: 31px;
+  left: 50%;
   z-index: 2;
   display: flex;
   gap: 8px;
+  transform: translateX(-50%);
 }
 
 .hero .hero-dots button {

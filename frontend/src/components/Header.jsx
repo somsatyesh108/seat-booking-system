@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
+import Logo from "./Logo";
 
 const CATEGORIES = [
   { to: "/movies", label: "Movies" },
@@ -80,9 +81,8 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="container header-top">
-        <Link to="/" className="logo">
-          <span className="logo-mark" aria-hidden="true">b</span>
-          bookify
+        <Link to="/" className="logo" aria-label="Bookify home">
+          <Logo />
         </Link>
 
         <form className="header-search" role="search" onSubmit={handleSearch}>

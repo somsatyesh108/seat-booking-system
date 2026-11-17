@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
+import Logo from "../components/Logo";
 
 export default function AuthPage({ mode }) {
   const isSignup = mode === "signup";
@@ -42,9 +43,8 @@ export default function AuthPage({ mode }) {
   return (
     <div className="auth-page">
       <section className="auth-hero">
-        <Link to="/" className="logo">
-          <span className="logo-mark" aria-hidden="true">b</span>
-          bookify
+        <Link to="/" className="logo" aria-label="Bookify home">
+          <Logo />
         </Link>
 
         <div>
