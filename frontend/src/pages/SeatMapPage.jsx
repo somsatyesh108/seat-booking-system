@@ -1,32 +1,25 @@
 // SeatMapPage.jsx - Live seat map: hold seats (5-minute timer), release them, and book them.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
-import { formatDate } from "./ShowsPage";
+import { expiresAtFromNow, formatCountdown, formatDate, rupees } from "../utils";
 
 const REFRESH_EVERY_MS = 5000; // re-load the map every 5 s to see other people's holds
 const FRONT_LABEL = { movie: "SCREEN", bus: "FRONT", event: "STAGE" };
 
-// 25000 paise -> "₹250"
-export function rupees(paise) {
-  return `₹${(paise / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
-}
-
-// 299000 ms -> "4:59"
-function formatCountdown(ms) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return `${minutes}:${seconds}`;
-}
-
 export default function SeatMapPage({ show, onBack }) {
   const [seatMap, setSeatMap] = useState(null);
   const [myHolds, setMyHolds] = useState({}); // { seatId: expiresAt (ms) }
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now()); // runs once, not on every render
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // A "pocket" that always holds the latest myHolds, for use inside the 1-second timer.
+  const holdsRef = useRef(myHolds);
+  useEffect(() => {
+    holdsRef.current = myHolds;
+  }, [myHolds]);
 
   const loadSeats = useCallback(() => {
     return api
@@ -42,25 +35,27 @@ export default function SeatMapPage({ show, onBack }) {
     return () => clearInterval(timer); // stop refreshing when we leave this page
   }, [loadSeats]);
 
-  // Tick once a second, so the countdown moves.
+  // Every second: move the countdown, and drop any of my holds that have run out.
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    const timer = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
 
-  // When one of my holds runs out, forget it and tell the user.
-  useEffect(() => {
-    const expiredIds = Object.keys(myHolds).filter((seatId) => myHolds[seatId] <= now);
-    if (expiredIds.length === 0) return;
-    setMyHolds((holds) => {
-      const next = { ...holds };
-      expiredIds.forEach((seatId) => delete next[seatId]);
-      return next;
-    });
-    setMessage("");
-    setError("Your 5-minute hold expired, so those seats were released. Please choose again.");
-    loadSeats();
-  }, [now, myHolds, loadSeats]);
+      const holds = holdsRef.current;
+      const expiredIds = Object.keys(holds).filter((seatId) => holds[seatId] <= current);
+      if (expiredIds.length > 0) {
+        setMyHolds((latest) => {
+          const next = { ...latest };
+          expiredIds.forEach((seatId) => delete next[seatId]);
+          return next;
+        });
+        setMessage("");
+        setError("Your 5-minute hold expired, so those seats were released. Please choose again.");
+        loadSeats();
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [loadSeats]);
 
   async function handleSeatClick(seat) {
     const isMine = seat.id in myHolds;
@@ -79,7 +74,7 @@ export default function SeatMapPage({ show, onBack }) {
         });
       } else {
         const hold = await api.holdSeat(show.id, seat.id);
-        const expiresAt = Date.now() + hold.expires_in_seconds * 1000;
+        const expiresAt = expiresAtFromNow(hold.expires_in_seconds);
         setMyHolds((holds) => ({ ...holds, [seat.id]: expiresAt }));
       }
     } catch (err) {

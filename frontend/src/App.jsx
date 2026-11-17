@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, clearToken, getToken } from "./api";
 import AuthPage from "./pages/AuthPage";
+import MyBookingsPage from "./pages/MyBookingsPage";
 import SeatMapPage from "./pages/SeatMapPage";
 import ShowsPage from "./pages/ShowsPage";
 import "./App.css";
@@ -10,6 +11,7 @@ import "./App.css";
 export default function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(Boolean(getToken()));
+  const [tab, setTab] = useState("shows"); // "shows" or "bookings"
   const [selectedShow, setSelectedShow] = useState(null);
 
   // On page load: if a token is saved, ask the backend "who am I?"
@@ -26,6 +28,12 @@ export default function App() {
     clearToken();
     setUser(null);
     setSelectedShow(null);
+    setTab("shows");
+  }
+
+  function openTab(name) {
+    setTab(name);
+    setSelectedShow(null);
   }
 
   if (checking) return <p className="center muted">Loading...</p>;
@@ -41,7 +49,18 @@ export default function App() {
       </header>
 
       <main className="content">
-        {selectedShow ? (
+        <nav className="tabs">
+          <button className={tab === "shows" ? "active" : ""} onClick={() => openTab("shows")}>
+            🎬 Shows
+          </button>
+          <button className={tab === "bookings" ? "active" : ""} onClick={() => openTab("bookings")}>
+            🎟️ My bookings
+          </button>
+        </nav>
+
+        {tab === "bookings" ? (
+          <MyBookingsPage onBrowseShows={() => openTab("shows")} />
+        ) : selectedShow ? (
           <SeatMapPage
             key={selectedShow.id}
             show={selectedShow}

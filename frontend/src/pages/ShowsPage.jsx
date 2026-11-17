@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../api";
-
-// "2026-12-05T13:30:00Z" -> "5 Dec 2026, 7:00 pm" (shown in Indian time)
-export function formatDate(isoText) {
-  return new Date(isoText).toLocaleString("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Kolkata",
-  });
-}
+import { formatDate } from "../utils";
 
 const ICONS = { movie: "🎬", bus: "🚌", event: "🎤" };
 
