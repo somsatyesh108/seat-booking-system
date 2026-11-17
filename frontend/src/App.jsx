@@ -1,7 +1,15 @@
 // App.jsx - All the pages (routes) of Bookify, and the shared layout around them.
 
 import { useEffect, useState } from "react";
-import { Link, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { api } from "./api";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -11,11 +19,19 @@ import HomePage from "./pages/HomePage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import SeatMapPage from "./pages/SeatMapPage";
 import ShowsPage from "./pages/ShowsPage";
+import TitlePage from "./pages/TitlePage";
 import "./App.css"; // old page styles, kept until every page is redesigned
 import "./styles/site.css";
 
 // Header + page + footer, shared by every page except /login and /signup.
 function Layout() {
+  const { pathname } = useLocation();
+
+  // Every time the address changes, start the new page at the top.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <div className="site">
       <Header />
@@ -84,6 +100,7 @@ export default function App() {
 
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
+        <Route path="title/:slug" element={<TitlePage />} />
         <Route path="movies" element={<OldShowsPage />} />
         <Route path="events" element={<OldShowsPage />} />
         <Route path="buses" element={<OldShowsPage />} />

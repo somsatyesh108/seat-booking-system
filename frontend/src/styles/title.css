@@ -1,0 +1,189 @@
+/* title.css - The title detail page: banner, about, date tabs and showtimes by venue. */
+
+/* ---------- Banner ---------- */
+.title-banner {
+  position: relative;
+  color: #fff;
+}
+
+.title-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.title-banner-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  align-items: center;
+  gap: 44px;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.title-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.title-kind {
+  padding: 4px 12px;
+  border-radius: var(--pill);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.title-info h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.title-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.title-facts li {
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 0.88rem;
+}
+
+.title-price {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Sections ---------- */
+.title-section {
+  margin-top: 56px;
+}
+
+.title-section h2 {
+  margin-bottom: 16px;
+  font-size: 1.6rem;
+}
+
+.title-about {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 1.05rem;
+}
+
+/* ---------- Date tabs ---------- */
+.day-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.day-tabs .day-tab {
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  background: #fff;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.day-tabs .day-tab:hover:not(:disabled) {
+  border-color: var(--text);
+  background: #fff;
+}
+
+.day-tabs .day-tab[aria-pressed="true"] {
+  border-color: var(--text);
+  background: var(--text);
+  color: #fff;
+}
+
+/* ---------- Venues and times ---------- */
+.venue {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--bg-alt);
+}
+
+.venue-name strong {
+  display: block;
+}
+
+.venue-name span {
+  color: var(--text-2);
+  font-size: 0.85rem;
+}
+
+.times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.times .time-btn {
+  min-width: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: #fff;
+}
+
+.times .time-btn:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: #f5f9ff;
+}
+
+.times .time-btn span {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.times .time-btn small {
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+
+.times .time-btn.is-filling span,
+.times .time-btn.is-filling small {
+  color: #c25e00;
+}
+
+.times-note {
+  margin: 14px 0 0;
+  color: var(--text-2);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .title-banner-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .title-banner-inner .poster {
+    width: 160px;
+  }
+  .venue {
+    grid-template-columns: 1fr;
+  }
+}
