@@ -71,8 +71,13 @@ export const api = {
       auth: false,
     }),
   me: () => request("/auth/me"),
-  listShows: () => request("/shows", { auth: false }),
+
+  // category: "movie" | "bus" | "event" | undefined (all)
+  listShows: (category) =>
+    request(category ? `/shows?category=${category}` : "/shows", { auth: false }),
+  getShow: (showId) => request(`/shows/${showId}`, { auth: false }),
   seatMap: (showId) => request(`/shows/${showId}/seats`, { auth: false }),
+
   holdSeat: (showId, seatId) =>
     request(`/shows/${showId}/seats/${seatId}/hold`, { method: "POST" }),
   releaseSeat: (showId, seatId) =>

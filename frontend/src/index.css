@@ -1,9 +1,39 @@
-/* index.css - Basic look for every page. */
+/* index.css - Bookify design tokens (Apple-style colours and type) and base styles. */
 
 :root {
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #1f2937;
-  background: #f3f4f6;
+  /* Colours (Apple-style) */
+  --bg: #ffffff;
+  --bg-alt: #f5f5f7;     /* light grey sections */
+  --bg-dark: #000000;    /* dark hero sections */
+  --text: #1d1d1f;       /* near-black text */
+  --text-2: #6e6e73;     /* secondary text */
+  --text-3: #86868b;     /* tertiary text */
+  --line: #d2d2d7;       /* borders */
+  --blue: #0071e3;       /* buttons, YOUR seats */
+  --blue-hover: #0077ed;
+  --link: #0066cc;
+  --green: #34c759;      /* success, available */
+  --orange: #ff9f0a;     /* held by someone else, "filling fast" */
+  --red: #ff3b30;        /* errors */
+
+  /* Apple's system font: SF Pro on Macs and iPhones; Inter elsewhere */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue",
+    Inter, Helvetica, Arial, sans-serif;
+
+  /* Shapes and sizes */
+  --radius-s: 12px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+  --pill: 980px;
+  --page-width: 1200px;
+
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -12,10 +42,54 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
 }
 
 button {
-  font: inherit;
   cursor: pointer;
-  color: inherit;
+}
+
+/* Clear keyboard focus for accessibility */
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Respect people who turn off animations in their system settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
