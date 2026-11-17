@@ -1,75 +1,102 @@
-// App.jsx - The top of our React app: decides which screen to show.
+// App.jsx - All the pages (routes) of Bookify, and the shared layout around them.
 
 import { useEffect, useState } from "react";
-import { api, clearToken, getToken } from "./api";
+import { Link, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { api } from "./api";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import SeatMapPage from "./pages/SeatMapPage";
 import ShowsPage from "./pages/ShowsPage";
-import "./App.css";
+import "./App.css"; // old page styles, kept until every page is redesigned
+import "./styles/site.css";
+
+// Header + page + footer, shared by every page except /login and /signup.
+function Layout() {
+  return (
+    <div className="site">
+      <Header />
+      <main className="site-main">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// ---- Temporary bridges: connect the old pages to the new URLs (replaced in later steps) ----
+
+function OldShowsPage() {
+  const navigate = useNavigate();
+  return (
+    <div className="container" style={{ paddingTop: 32 }}>
+      <ShowsPage onSelectShow={(show) => navigate(`/shows/${show.id}/seats`)} />
+    </div>
+  );
+}
+
+function OldSeatMapPage() {
+  const { showId } = useParams();
+  const navigate = useNavigate();
+  const [show, setShow] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api.getShow(showId).then(setShow).catch((err) => setError(err.message));
+  }, [showId]);
+
+  if (error) return <p className="page-empty">{error}</p>;
+  if (!show) return <p className="page-loading">Loading seats...</p>;
+  return (
+    <div className="container" style={{ paddingTop: 32 }}>
+      <SeatMapPage show={show} onBack={() => navigate(-1)} />
+    </div>
+  );
+}
+
+function OldTicketsPage() {
+  const navigate = useNavigate();
+  return (
+    <div className="container" style={{ paddingTop: 32 }}>
+      <MyBookingsPage onBrowseShows={() => navigate("/")} />
+    </div>
+  );
+}
+
+function NotFound() {
+  return (
+    <div className="container page-empty">
+      <h1>This page doesn't exist</h1>
+      <p>The link may be broken, or the page may have moved.</p>
+      <Link className="btn btn-primary" to="/">Go to the home page</Link>
+    </div>
+  );
+}
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [checking, setChecking] = useState(Boolean(getToken()));
-  const [tab, setTab] = useState("shows"); // "shows" or "bookings"
-  const [selectedShow, setSelectedShow] = useState(null);
-
-  // On page load: if a token is saved, ask the backend "who am I?"
-  useEffect(() => {
-    if (!getToken()) return;
-    api
-      .me()
-      .then(setUser)
-      .catch(() => clearToken()) // expired or invalid token -> forget it
-      .finally(() => setChecking(false));
-  }, []);
-
-  function logout() {
-    clearToken();
-    setUser(null);
-    setSelectedShow(null);
-    setTab("shows");
-  }
-
-  function openTab(name) {
-    setTab(name);
-    setSelectedShow(null);
-  }
-
-  if (checking) return <p className="center muted">Loading...</p>;
-  if (!user) return <AuthPage onLoggedIn={setUser} />;
-
   return (
-    <div className="app">
-      <header className="topbar">
-        <strong>🎟️ Seat Booking</strong>
-        <span className="spacer" />
-        <span>Hi, {user.full_name}</span>
-        <button onClick={logout}>Log out</button>
-      </header>
+    <Routes>
+      <Route path="/login" element={<AuthPage key="login" mode="login" />} />
+      <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
 
-      <main className="content">
-        <nav className="tabs">
-          <button className={tab === "shows" ? "active" : ""} onClick={() => openTab("shows")}>
-            🎬 Shows
-          </button>
-          <button className={tab === "bookings" ? "active" : ""} onClick={() => openTab("bookings")}>
-            🎟️ My bookings
-          </button>
-        </nav>
-
-        {tab === "bookings" ? (
-          <MyBookingsPage onBrowseShows={() => openTab("shows")} />
-        ) : selectedShow ? (
-          <SeatMapPage
-            key={selectedShow.id}
-            show={selectedShow}
-            onBack={() => setSelectedShow(null)}
-          />
-        ) : (
-          <ShowsPage onSelectShow={setSelectedShow} />
-        )}
-      </main>
-    </div>
+      <Route element={<Layout />}>
+        <Route index element={<OldShowsPage />} />
+        <Route path="movies" element={<OldShowsPage />} />
+        <Route path="events" element={<OldShowsPage />} />
+        <Route path="buses" element={<OldShowsPage />} />
+        <Route path="search" element={<OldShowsPage />} />
+        <Route
+          path="shows/:showId/seats"
+          element={<RequireAuth><OldSeatMapPage /></RequireAuth>}
+        />
+        <Route
+          path="tickets"
+          element={<RequireAuth><OldTicketsPage /></RequireAuth>}
+        />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }

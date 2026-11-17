@@ -454,3 +454,9 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+/* The old App.css also styles .auth-page (centred, with padding). Undo that here.
+   We can delete this once App.css is removed at the end of the redesign. */
+.auth-page {
+  place-items: stretch;
+  padding: 0;
+}

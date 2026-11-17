@@ -1,28 +1,37 @@
-// AuthPage.jsx - Log in, or create an account (then log in automatically).
+// AuthPage.jsx - The /login and /signup pages. After signing in, the user goes back to
+// the page they were trying to open (for example, a seat map).
 
 import { useState } from "react";
-import { api, saveToken } from "../api";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/authContext";
 
-export default function AuthPage({ onLoggedIn }) {
-  const [mode, setMode] = useState("login"); // "login" or "signup"
+export default function AuthPage({ mode }) {
+  const isSignup = mode === "signup";
+  const { user, login, signup } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const goTo = location.state?.from || "/";
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Already signed in? No need to see this page.
+  if (user) return <Navigate to={goTo} replace />;
+
   async function handleSubmit(event) {
-    event.preventDefault(); // stop the browser from reloading the page
+    event.preventDefault();
     setError("");
     setBusy(true);
     try {
-      if (mode === "signup") {
-        await api.signup(email, fullName, password);
+      if (isSignup) {
+        await signup(fullName, email, password);
+      } else {
+        await login(email, password);
       }
-      const { access_token } = await api.login(email, password);
-      saveToken(access_token);
-      const user = await api.me();
-      onLoggedIn(user);
+      navigate(goTo, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -30,54 +39,76 @@ export default function AuthPage({ onLoggedIn }) {
     }
   }
 
-  const isSignup = mode === "signup";
-
   return (
     <div className="auth-page">
-      <form className="card auth-card" onSubmit={handleSubmit}>
-        <h1>🎟️ Seat Booking</h1>
-        <p className="muted">{isSignup ? "Create your account" : "Log in to book seats"}</p>
+      <section className="auth-hero">
+        <Link to="/" className="logo">
+          <span className="logo-mark" aria-hidden="true">b</span>
+          bookify
+        </Link>
 
-        {isSignup && (
-          <label>
-            Full name
-            <input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+        <div>
+          <h1>{isSignup ? "Your next night out starts here." : "Good to see you again."}</h1>
+          <p>
+            Movies, buses and events across Bengaluru. Pick your seats and we hold them for five
+            minutes while you pay.
+          </p>
+        </div>
+
+        <ul className="auth-facts">
+          <li>Seats held for 5 minutes, just for you</li>
+          <li>Two people can never book the same seat</li>
+          <li>All your tickets in one place</li>
+        </ul>
+      </section>
+
+      <section className="auth-form-wrap">
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <h2>{isSignup ? "Create your account" : "Sign in"}</h2>
+
+          {location.state?.from && (
+            <p className="notice notice-info">Sign in to continue with your booking.</p>
+          )}
+
+          {isSignup && (
+            <label className="field">
+              Full name
+              <input value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" required />
+            </label>
+          )}
+
+          <label className="field">
+            Email
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </label>
-        )}
 
-        <label>
-          Email
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </label>
+          <label className="field">
+            Password
+            {isSignup && <span className="field-hint">At least 8 characters</span>}
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={isSignup ? "new-password" : "current-password"}
+              minLength={8}
+              required
+            />
+          </label>
 
-        <label>
-          Password {isSignup && <span className="muted">(at least 8 characters)</span>}
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={8}
-            required
-          />
-        </label>
+          {error && <p className="notice notice-error" role="alert">{error}</p>}
 
-        {error && <p className="error">{error}</p>}
+          <button className="btn btn-primary btn-large btn-block" type="submit" disabled={busy}>
+            {busy ? "Please wait..." : isSignup ? "Create account" : "Sign in"}
+          </button>
 
-        <button className="primary" type="submit" disabled={busy}>
-          {busy ? "Please wait..." : isSignup ? "Sign up" : "Log in"}
-        </button>
-
-        <button
-          type="button"
-          className="link"
-          onClick={() => {
-            setMode(isSignup ? "login" : "signup");
-            setError("");
-          }}
-        >
-          {isSignup ? "Already have an account? Log in" : "New here? Create an account"}
-        </button>
-      </form>
+          <p className="auth-switch">
+            {isSignup ? "Already have an account? " : "New to Bookify? "}
+            <Link to={isSignup ? "/login" : "/signup"} state={location.state}>
+              {isSignup ? "Sign in" : "Create an account"}
+            </Link>
+          </p>
+        </form>
+      </section>
     </div>
   );
 }
