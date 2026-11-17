@@ -1,0 +1,154 @@
+/* listing.css - Movies, Events, Buses and Search pages: filters on the left, a grid on the right. */
+
+.listing {
+  padding-top: 40px;
+}
+
+.listing-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.listing-head h1 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.listing-count {
+  margin: 0;
+  color: var(--text-2);
+}
+
+/* ---------- Search box (search page only) ---------- */
+.listing-search {
+  max-width: 640px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  padding: 0 18px;
+  border-radius: var(--pill);
+  background: var(--bg-alt);
+  color: var(--text-2);
+}
+
+.listing-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.3);
+}
+
+.listing-search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: none;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* ---------- Filters + results ---------- */
+.listing-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  align-items: start;
+  gap: 40px;
+}
+
+.filters {
+  position: sticky;
+  top: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  border-radius: var(--radius-m);
+  background: var(--bg-alt);
+}
+
+.filter-group h2 {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filters .chip {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  background: #fff;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.filters .chip:hover:not(:disabled) {
+  border-color: var(--text);
+  background: #fff;
+}
+
+.filters .chip[aria-pressed="true"] {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.listing-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.listing-toolbar label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.listing-toolbar select {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+}
+
+.title-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 28px 20px;
+}
+
+.listing-empty {
+  padding: 64px 24px;
+  border-radius: var(--radius-m);
+  background: var(--bg-alt);
+  color: var(--text-2);
+  text-align: center;
+}
+
+.listing-empty h2 {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+@media (max-width: 860px) {
+  .listing-layout {
+    grid-template-columns: 1fr;
+  }
+  .filters {
+    position: static;
+  }
+}

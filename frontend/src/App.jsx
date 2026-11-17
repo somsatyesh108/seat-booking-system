@@ -16,9 +16,9 @@ import Header from "./components/Header";
 import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
+import ListingPage from "./pages/ListingPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import SeatMapPage from "./pages/SeatMapPage";
-import ShowsPage from "./pages/ShowsPage";
 import TitlePage from "./pages/TitlePage";
 import "./App.css"; // old page styles, kept until every page is redesigned
 import "./styles/site.css";
@@ -44,15 +44,6 @@ function Layout() {
 }
 
 // ---- Temporary bridges: connect the old pages to the new URLs (replaced in later steps) ----
-
-function OldShowsPage() {
-  const navigate = useNavigate();
-  return (
-    <div className="container" style={{ paddingTop: 32 }}>
-      <ShowsPage onSelectShow={(show) => navigate(`/shows/${show.id}/seats`)} />
-    </div>
-  );
-}
 
 function OldSeatMapPage() {
   const { showId } = useParams();
@@ -101,10 +92,10 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="title/:slug" element={<TitlePage />} />
-        <Route path="movies" element={<OldShowsPage />} />
-        <Route path="events" element={<OldShowsPage />} />
-        <Route path="buses" element={<OldShowsPage />} />
-        <Route path="search" element={<OldShowsPage />} />
+        <Route path="movies" element={<ListingPage key="movie" category="movie" />} />
+        <Route path="events" element={<ListingPage key="event" category="event" />} />
+        <Route path="buses" element={<ListingPage key="bus" category="bus" />} />
+        <Route path="search" element={<ListingPage key="search" />} />
         <Route
           path="shows/:showId/seats"
           element={<RequireAuth><OldSeatMapPage /></RequireAuth>}
