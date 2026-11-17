@@ -1,18 +1,19 @@
 """
 routers/shows.py - Shows, seat maps and 5-minute seat holds.
 
-  GET    /shows                                   -> list all shows
+  GET    /shows?category=movie                    -> all showtimes, with seats left and lowest price
+  GET    /shows/{show_id}                         -> one showtime, with seats left and lowest price
   GET    /shows/{show_id}/seats                   -> seat map (available / held / booked)
   POST   /shows/{show_id}/seats/{seat_id}/hold    -> hold a seat for 5 minutes (login needed)
   DELETE /shows/{show_id}/seats/{seat_id}/hold    -> release your own hold (login needed)
 """
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 import redis
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from redis.exceptions import RedisError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -20,12 +21,13 @@ from app.dependencies import CurrentUser
 from app.holds import get_holder, get_holders, release_hold, seconds_left, try_hold_seat
 from app.models import Booking, Seat, Show
 from app.redis_client import get_redis
-from app.schemas import HoldOut, SeatMapOut, SeatOut, ShowOut
+from app.schemas import HoldOut, SeatMapOut, SeatOut, ShowListItem, ShowOut
 
 router = APIRouter(prefix="/shows", tags=["shows"])
 
 DbSession = Annotated[Session, Depends(get_db)]
 RedisClient = Annotated[redis.Redis, Depends(get_redis)]
+Category = Literal["movie", "bus", "event"]
 
 
 # ---------- Small helpers ----------
@@ -55,12 +57,68 @@ def _redis_unavailable() -> HTTPException:
     )
 
 
+def _shows_with_stats(
+    db: Session, category: str | None = None, show_id: int | None = None
+) -> list[ShowListItem]:
+    """
+    Showtimes plus live numbers, in ONE database query:
+    total seats, booked seats and the cheapest seat price for each show.
+    """
+    seat_stats = (
+        select(
+            Seat.show_id.label("show_id"),
+            func.count(Seat.id).label("seats_total"),
+            func.count(Booking.id).label("seats_booked"),  # counts only seats that HAVE a booking
+            func.min(Seat.price_paise).label("min_price_paise"),
+        )
+        .outerjoin(Booking, Booking.seat_id == Seat.id)
+        .group_by(Seat.show_id)
+        .subquery()
+    )
+
+    query = (
+        select(
+            Show,
+            seat_stats.c.seats_total,
+            seat_stats.c.seats_booked,
+            seat_stats.c.min_price_paise,
+        )
+        .outerjoin(seat_stats, seat_stats.c.show_id == Show.id)
+        .order_by(Show.starts_at, Show.id)
+    )
+    if category is not None:
+        query = query.where(Show.category == category)
+    if show_id is not None:
+        query = query.where(Show.id == show_id)
+
+    return [
+        ShowListItem(
+            **ShowOut.model_validate(show).model_dump(),
+            seats_total=total or 0,
+            seats_booked=booked or 0,
+            min_price_paise=min_price,
+        )
+        for show, total, booked, min_price in db.execute(query).all()
+    ]
+
+
 # ---------- Endpoints ----------
 
-@router.get("", response_model=list[ShowOut])
-def list_shows(db: DbSession) -> list[Show]:
-    """All shows, earliest first."""
-    return list(db.scalars(select(Show).order_by(Show.starts_at)))
+@router.get("", response_model=list[ShowListItem])
+def list_shows(
+    db: DbSession, category: Annotated[Category | None, Query()] = None
+) -> list[ShowListItem]:
+    """All showtimes, earliest first. Optional filter: ?category=movie (or bus, event)."""
+    return _shows_with_stats(db, category=category)
+
+
+@router.get("/{show_id}", response_model=ShowListItem)
+def get_show(show_id: int, db: DbSession) -> ShowListItem:
+    """One showtime's details, with seats left and the lowest price."""
+    rows = _shows_with_stats(db, show_id=show_id)
+    if not rows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Show not found.")
+    return rows[0]
 
 
 @router.get("/{show_id}/seats", response_model=SeatMapOut)
@@ -122,9 +180,7 @@ def hold_seat(
     """
     Hold a seat for 5 minutes so nobody else can take it while you pay.
 
-    Example: Som holds A7 -> 201 {"seat_label": "A7", "expires_in_seconds": 300, ...}
-    Nahul then tries A7 -> 409 "held by someone else".
-    Som clicks hold again on A7 -> 201 with the time remaining (his hold is kept, not extended).
+    Som holds A7 -> 201. Nahul then tries A7 -> 409. Som clicks hold again -> 201 (kept, not extended).
     """
     seat = _get_seat_or_404(db, show_id, seat_id)
     label = f"{seat.row_label}{seat.seat_number}"
@@ -158,11 +214,7 @@ def hold_seat(
 def release_seat_hold(
     show_id: int, seat_id: int, current_user: CurrentUser, db: DbSession, r: RedisClient
 ) -> Response:
-    """
-    Release your own hold early (e.g. Som changes his mind).
-
-    You cannot release someone else's hold -> 404 "You do not have a hold on this seat."
-    """
+    """Release your own hold early. Someone else's hold -> 404."""
     seat = _get_seat_or_404(db, show_id, seat_id)
 
     try:

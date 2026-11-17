@@ -40,7 +40,7 @@ class Token(BaseModel):
 # ---------------- Shows, seats and holds ----------------
 
 class ShowOut(BaseModel):
-    """One show. Example: {"id": 1, "title": "The Last Monsoon", "category": "movie", ...}"""
+    """One showtime with its details. Example: {"title": "The Last Monsoon", "language": "Kannada", ...}"""
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -49,6 +49,19 @@ class ShowOut(BaseModel):
     category: str
     venue: str
     starts_at: datetime
+    description: str = ""
+    genre: str = ""
+    language: str = ""
+    duration_minutes: int | None = None
+    age_rating: str = ""
+
+
+class ShowListItem(ShowOut):
+    """A showtime plus live numbers for listing pages: seats left and the cheapest price."""
+
+    seats_total: int
+    seats_booked: int
+    min_price_paise: int | None = None
 
 
 class SeatOut(BaseModel):

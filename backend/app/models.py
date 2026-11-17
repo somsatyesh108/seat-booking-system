@@ -13,6 +13,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     UniqueConstraint,
     func,
 )
@@ -56,10 +57,12 @@ class User(Base):
 
 class Show(Base):
     """
-    Something people book seats for: a movie, a bus trip or an event.
+    One showing people book seats for: a movie screening, a bus trip or an event.
 
-    Example row: id=1, title="Leo", category="movie",
-                 venue="PVR Forum Mall, Bengaluru", starts_at=2026-12-01 19:00 IST
+    Example row: id=1, title="The Last Monsoon", category="movie", language="Kannada",
+                 genre="Drama", duration_minutes=142, age_rating="UA",
+                 venue="Forum Mall Screen 3, Bengaluru", starts_at=2026-12-05 19:00 IST
+    The same title can have several rows (different times or venues) = several showtimes.
     """
 
     __tablename__ = "shows"
@@ -79,6 +82,13 @@ class Show(Base):
 
     # When the show starts. index=True: makes "upcoming shows" lists fast.
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+    # ---- Details shown on the website (older rows get empty values) ----
+    description: Mapped[str] = mapped_column(Text, server_default="")
+    genre: Mapped[str] = mapped_column(String(60), server_default="")       # "Drama, Thriller"
+    language: Mapped[str] = mapped_column(String(40), server_default="")    # "Kannada"
+    duration_minutes: Mapped[int | None] = mapped_column(Integer)          # 142, or None
+    age_rating: Mapped[str] = mapped_column(String(10), server_default="")  # "U", "UA", "A"
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -140,7 +150,7 @@ class Booking(Base):
     """
     A confirmed booking: one user owns one seat.
 
-    Example row: id=1, user_id=1 (Som), seat_id=7 (seat A2 of "Leo"), amount_paise=25000
+    Example row: id=1, user_id=1 (Som), seat_id=7 (seat A2), amount_paise=25000
 
     THE DOUBLE-BOOKING GUARD:
     seat_id is UNIQUE, so PostgreSQL rejects a second booking for the same seat,
